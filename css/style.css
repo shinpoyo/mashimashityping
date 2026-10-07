@@ -398,10 +398,11 @@ footer {
 
 .samples {
   display: grid;
-  grid-template-columns: max-content repeat(4, 1fr);
-  gap: 6px 10px;
+  grid-template-columns: max-content repeat(8, minmax(65px, 1fr));
+  gap: 4px 6px;
   align-items: center;
   margin-top: 12px;
+  overflow-x: auto;
 }
 .samples .row-h { font-weight: 900; }
 .samples figure { margin: 0; text-align: center; font-size: 12px; font-weight: 700; }

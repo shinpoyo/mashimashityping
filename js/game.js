@@ -9,7 +9,16 @@
     { key: 'abura', word: 'アブラ' },
     { key: 'karame', word: 'カラメ' },
   ];
-  const MOD_LV = { '': 2, 'マシ': 3, 'マシマシ': 4, 'スクナメ': 1 };
+  const MOD_LV = {
+    '': 2,
+    'マシ': 3,
+    'マシマシ': 4,
+    'マシマシマシ': 5,
+    'マシマシマシマシ': 6,
+    'マシマシマシマシマシ': 7,
+    'マシマシマシマシマシマシ': 8,
+    'スクナメ': 1,
+  };
   const DEFAULT_LV = { yasai: 2, ninniku: 0, abura: 0, karame: 1 };
   const ALL = lv => ({ yasai: lv, ninniku: lv, abura: lv, karame: lv });
 
@@ -21,19 +30,31 @@
     },
     normal: {
       name: '大ラーメン', lots: 10, base: 2.2, perKey: 0.3,
-      count: [2, 4], mods: { '': 4, 'マシ': 3, 'マシマシ': 2, 'スクナメ': 1 }, shuffle: false,
-      specials: [{ display: '全マシ', kana: 'ゼンマシ', lv: ALL(3) }], specialRate: 0.08,
-    },
-    hard: {
-      name: '全マシマシ', lots: 12, base: 1.2, perKey: 0.2,
-      count: [3, 4], mods: { '': 1, 'マシ': 2, 'マシマシ': 5, 'スクナメ': 1 }, shuffle: true,
+      count: [2, 4], mods: { '': 4, 'マシ': 3, 'マシマシ': 2, 'マシマシマシ': 1, 'スクナメ': 1 }, shuffle: false,
       specials: [
         { display: '全マシ', kana: 'ゼンマシ', lv: ALL(3) },
         { display: '全マシマシ', kana: 'ゼンマシマシ', lv: ALL(4) },
-      ], specialRate: 0.1,
+      ], specialRate: 0.08,
+    },
+    hard: {
+      name: '全マシマシ', lots: 12, base: 1.2, perKey: 0.2,
+      count: [3, 4], mods: {
+        '': 1, 'マシ': 1, 'マシマシ': 2,
+        'マシマシマシ': 3, 'マシマシマシマシ': 3,
+        'マシマシマシマシマシ': 2, 'マシマシマシマシマシマシ': 2,
+        'スクナメ': 1,
+      }, shuffle: true,
+      specials: [
+        { display: '全マシ', kana: 'ゼンマシ', lv: ALL(3) },
+        { display: '全マシマシ', kana: 'ゼンマシマシ', lv: ALL(4) },
+        { display: '全マシマシマシ', kana: 'ゼンマシマシマシ', lv: ALL(5) },
+        { display: '全マシマシマシマシ', kana: 'ゼンマシマシマシマシ', lv: ALL(6) },
+        { display: '全マシマシマシマシマシ', kana: 'ゼンマシマシマシマシマシ', lv: ALL(7) },
+        { display: '全マシマシマシマシマシマシ', kana: 'ゼンマシマシマシマシマシマシ', lv: ALL(8) },
+      ], specialRate: 0.12,
     },
     super: {
-      name: '超ハード', lots: 8, base: 5.0, perKey: 0.3, super: true,
+      name: '超ハード', lots: 8, base: 5.5, perKey: 0.32, super: true,
     },
   };
 
@@ -87,14 +108,18 @@
   }
 
   // ---------- 超ハード：画像からコールを当てる ----------
-  // 画像で区別できる段階だけを出題（カラメ/ニンニク/アブラのスクナメは基準と区別しにくいので除外）
+  // 画像で区別できる段階を出題
   const SUPER_WEIGHTS = {
-    yasai: { 1: 1, 2: 3, 3: 2, 4: 2 },
-    ninniku: { 0: 2, 2: 2, 3: 2, 4: 1 },
-    abura: { 0: 2, 2: 2, 3: 2, 4: 1 },
-    karame: { 1: 2, 2: 2, 3: 2, 4: 1 },
+    yasai: { 1: 1, 2: 3, 3: 2, 4: 2, 5: 1, 6: 1, 7: 1, 8: 1 },
+    ninniku: { 0: 2, 2: 2, 3: 2, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1 },
+    abura: { 0: 2, 2: 2, 3: 2, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1 },
+    karame: { 1: 2, 2: 2, 3: 2, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1 },
   };
-  const LV_MOD = { 1: 'スクナメ', 2: '', 3: 'マシ', 4: 'マシマシ' };
+  const LV_MOD = {
+    1: 'スクナメ', 2: '', 3: 'マシ', 4: 'マシマシ',
+    5: 'マシマシマシ', 6: 'マシマシマシマシ',
+    7: 'マシマシマシマシマシ', 8: 'マシマシマシマシマシマシ',
+  };
 
   function permutations(arr) {
     if (arr.length <= 1) return [arr.slice()];
@@ -125,6 +150,10 @@
     const vals = TOPPINGS.map(t => lv[t.key]);
     if (vals.every(v => v === 3)) set.add('ゼンマシ');
     if (vals.every(v => v === 4)) set.add('ゼンマシマシ');
+    if (vals.every(v => v === 5)) set.add('ゼンマシマシマシ');
+    if (vals.every(v => v === 6)) set.add('ゼンマシマシマシマシ');
+    if (vals.every(v => v === 7)) set.add('ゼンマシマシマシマシマシ');
+    if (vals.every(v => v === 8)) set.add('ゼンマシマシマシマシマシマシ');
     const canonical = required.length ? required.join(' ') : 'そのままで';
     return { answers: [...set], canonical };
   }
@@ -469,10 +498,22 @@
   // 盛り見本（超ハード攻略用）
   (function renderSamples() {
     const rows = [
-      ['ヤサイ', 'yasai', [[1, 'スクナメ'], [2, '普通'], [3, 'マシ'], [4, 'マシマシ']]],
-      ['ニンニク', 'ninniku', [[0, 'なし'], [2, 'ニンニク'], [3, 'マシ'], [4, 'マシマシ']]],
-      ['アブラ', 'abura', [[0, 'なし'], [2, 'アブラ'], [3, 'マシ'], [4, 'マシマシ']]],
-      ['カラメ', 'karame', [[1, 'なし'], [2, 'カラメ'], [3, 'マシ'], [4, 'マシマシ']]],
+      ['ヤサイ', 'yasai', [
+        [1, 'スクナメ'], [2, '普通'], [3, 'マシ'], [4, '×2'],
+        [5, '×3'], [6, '×4'], [7, '×5'], [8, '×6']
+      ]],
+      ['ニンニク', 'ninniku', [
+        [0, 'なし'], [2, '普通'], [3, 'マシ'], [4, '×2'],
+        [5, '×3'], [6, '×4'], [7, '×5'], [8, '×6']
+      ]],
+      ['アブラ', 'abura', [
+        [0, 'なし'], [2, '普通'], [3, 'マシ'], [4, '×2'],
+        [5, '×3'], [6, '×4'], [7, '×5'], [8, '×6']
+      ]],
+      ['カラメ', 'karame', [
+        [1, 'なし'], [2, '普通'], [3, 'マシ'], [4, '×2'],
+        [5, '×3'], [6, '×4'], [7, '×5'], [8, '×6']
+      ]],
     ];
     let html = '';
     rows.forEach(([label, key, cols]) => {
