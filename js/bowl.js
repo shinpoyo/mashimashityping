@@ -14,9 +14,9 @@ const Bowl = (() => {
   function render(lv, seed = 1) {
     const r = rng(seed);
     const cx = 120, top = 118;
-    // ヤサイの高さ H と広がり W
-    const H_LIST = [0, 18, 32, 48, 65, 82, 100, 118, 138];
-    const W_LIST = [0, 30, 44, 54, 64, 72, 78, 84, 90];
+    // ヤサイの高さ H と広がり W（チョモランマはlv9）
+    const H_LIST = [0, 18, 32, 48, 65, 82, 100, 118, 138, 160];
+    const W_LIST = [0, 30, 44, 54, 64, 72, 78, 84, 90, 96];
     const ylv = Math.min(lv.yasai, H_LIST.length - 1);
     const H = H_LIST[ylv];
     const W = W_LIST[ylv];
@@ -44,6 +44,10 @@ const Bowl = (() => {
     // ヤサイ
     if (H > 0) {
       g += `<path d="M${cx - W} ${top + 4} Q${cx - W * 0.7} ${peak + H * 0.15} ${cx} ${peak} Q${cx + W * 0.7} ${peak + H * 0.15} ${cx + W} ${top + 4} Z" fill="#eef3d6" stroke="#8aa04a" stroke-width="2"/>`;
+      // チョモランマ頂上の万年雪（白いモヤシ冠）
+      if (ylv >= 9) {
+        g += `<path d="M${cx - 18} ${peak + 12} Q${cx} ${peak - 4} ${cx + 18} ${peak + 12} Z" fill="#ffffff" opacity=".95"/>`;
+      }
       // キャベツ
       const cab = 3 + ylv * 2;
       for (let i = 0; i < cab; i++) {
@@ -99,7 +103,7 @@ const Bowl = (() => {
       g += `<rect x="${x}" y="${y}" width="4.5" height="3.5" rx="1" fill="#f3e2a2" stroke="#c9b061" stroke-width=".6"/>`;
     }
 
-    return `<svg viewBox="0 0 240 215" xmlns="http://www.w3.org/2000/svg" class="bowl">${g}</svg>`;
+    return `<svg viewBox="0 -25 240 240" xmlns="http://www.w3.org/2000/svg" class="bowl">${g}</svg>`;
   }
 
   return { render };

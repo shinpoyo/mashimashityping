@@ -398,7 +398,7 @@ footer {
 
 .samples {
   display: grid;
-  grid-template-columns: max-content repeat(8, minmax(65px, 1fr));
+  grid-template-columns: max-content repeat(9, minmax(65px, 1fr));
   gap: 4px 6px;
   align-items: center;
   margin-top: 12px;
