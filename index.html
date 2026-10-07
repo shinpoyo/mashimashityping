@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>マシマシタイピング｜二郎系コール特化タイピング</title>
+  <meta name="description" content="ラーメン二郎の「コール」だけに特化したタイピングゲーム。ニンニク入れますか？に即答せよ。">
+  <meta property="og:title" content="マシマシタイピング">
+  <meta property="og:description" content="ニンニク入れますか？――ロットを乱さず即答せよ。二郎系コール特化タイピング。">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍜</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=M+PLUS+1p:wght@400;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="sign">
+    <div class="sign-inner">
+      <h1>マシマシタイピング</h1>
+      <p>二郎系 コール特化型タイピング</p>
+    </div>
+    <button id="muteBtn" class="mute" title="サウンド切替">🔊</button>
+  </header>
+
+  <main>
+    <!-- タイトル -->
+    <section id="titleScreen" class="screen active">
+      <div class="panel intro">
+        <p class="lead">「ニンニク入れますか？」<br>――その一言に、迷わず即答できるか。</p>
+        <p class="sub">店員さんの問いかけにコールを打ち込め。もたつけば<strong>ロットが乱れる</strong>。</p>
+      </div>
+
+      <div class="modes">
+        <button class="mode" data-mode="easy">
+          <span class="ticket">小ラーメン</span>
+          <span class="mode-desc">初心者向け・8ロット<br>短いコール中心</span>
+          <span class="best" data-best="easy"></span>
+        </button>
+        <button class="mode" data-mode="normal">
+          <span class="ticket">大ラーメン</span>
+          <span class="mode-desc">常連向け・10ロット<br>マシマシ解禁</span>
+          <span class="best" data-best="normal"></span>
+        </button>
+        <button class="mode hard" data-mode="hard">
+          <span class="ticket">全マシマシ</span>
+          <span class="mode-desc">ジロリアン向け・12ロット<br>順不同・制限時間激短</span>
+          <span class="best" data-best="hard"></span>
+        </button>
+      </div>
+      <p class="hint">食券を選んで開始（キーボード <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> でも選択可）／ IMEはオフにしてください</p>
+
+      <details class="panel glossary">
+        <summary>コール用語集</summary>
+        <dl>
+          <dt>ヤサイ</dt><dd>茹でたモヤシとキャベツ</dd>
+          <dt>ニンニク</dt><dd>刻みニンニク</dd>
+          <dt>アブラ</dt><dd>背脂</dd>
+          <dt>カラメ</dt><dd>カエシ（醤油ダレ）追加で味濃いめ</dd>
+          <dt>マシ</dt><dd>増量</dd>
+          <dt>マシマシ</dt><dd>さらに増量（対応店のみ）</dd>
+          <dt>スクナメ</dt><dd>少なめ</dd>
+          <dt>全マシ</dt><dd>全トッピングをマシ</dd>
+          <dt>そのままで</dt><dd>トッピングなし（ニンニク無し・ヤサイ普通）</dd>
+        </dl>
+        <p class="note">ローマ字は「shi / si」「tsu / tu」「nn / n」「っ＝子音重ね / ltu」など一般的な表記に対応しています。</p>
+      </details>
+    </section>
+
+    <!-- ゲーム -->
+    <section id="gameScreen" class="screen">
+      <div class="hud">
+        <div><span class="label">ロット</span><span id="hudLot">1/10</span></div>
+        <div><span class="label">スコア</span><span id="hudScore">0</span></div>
+        <div><span class="label">ミス</span><span id="hudMiss">0</span></div>
+        <div><span class="label">乱し</span><span id="hudBreak">0</span></div>
+      </div>
+
+      <div class="counter">
+        <div class="staff">
+          <div class="staff-face">👨‍🍳</div>
+          <div class="bubble" id="staffBubble">ニンニク入れますか？</div>
+        </div>
+        <div class="bowl-wrap" id="bowlWrap"></div>
+      </div>
+
+      <div class="callcard" id="callCard">
+        <div class="call-label">あなたのコール</div>
+        <div class="call-display" id="callDisplay"></div>
+        <div class="call-kana" id="callKana"></div>
+        <div class="call-romaji" id="callRomaji"></div>
+        <div class="timer"><div class="timer-bar" id="timerBar"></div></div>
+      </div>
+
+      <div class="countdown" id="countdown"></div>
+      <div class="ime-warn" id="imeWarn">IMEがオンになっています。半角英数に切り替えてください。</div>
+      <p class="hint small"><kbd>Esc</kbd> で中断</p>
+    </section>
+
+    <!-- 結果 -->
+    <section id="resultScreen" class="screen">
+      <div class="panel result">
+        <div class="result-mode" id="resMode"></div>
+        <div class="rank-label">あなたの称号</div>
+        <div class="rank" id="resRank"></div>
+        <div class="rank-comment" id="resComment"></div>
+        <div class="stats">
+          <div><span>スコア</span><b id="resScore"></b></div>
+          <div><span>打鍵/秒</span><b id="resKps"></b></div>
+          <div><span>正確率</span><b id="resAcc"></b></div>
+          <div><span>ミス</span><b id="resMiss"></b></div>
+          <div><span>ロット乱し</span><b id="resBreak"></b></div>
+          <div><span>最速コール</span><b id="resFast"></b></div>
+        </div>
+        <div class="newbest" id="resBest">自己ベスト更新！</div>
+        <div class="result-actions">
+          <button id="retryBtn" class="btn primary">もう一杯（Space）</button>
+          <button id="shareBtn" class="btn x">𝕏 でポスト</button>
+          <button id="backBtn" class="btn">食券機に戻る（Esc）</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>※本作は非公式のファンメイド作品であり、ラーメン二郎および関係店舗とは一切関係ありません。<br>
+    実際のコール方法・トッピングは店舗ごとに異なります。各店のルールに従いましょう。</p>
+  </footer>
+
+  <script src="js/romaji.js"></script>
+  <script src="js/bowl.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
