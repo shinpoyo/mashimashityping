@@ -173,23 +173,90 @@ kbd {
   letter-spacing: .2em;
 }
 
+/* ---------- ヒーロー・プレビュー ---------- */
+.hero-preview {
+  margin: 18px auto 6px;
+  max-width: 260px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.hero-bowl {
+  width: 100%;
+}
+.hero-bowl .bowl {
+  width: 100%;
+  display: block;
+  filter: drop-shadow(0 10px 16px rgba(0,0,0,0.5));
+  animation: heroFloat 3.2s ease-in-out infinite alternate;
+}
+@keyframes heroFloat {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-7px); }
+}
+.hero-caption {
+  margin-top: 8px;
+  font-size: 13px;
+  font-weight: 900;
+  color: var(--wood-dark);
+  background: rgba(255, 225, 0, 0.28);
+  border: 2px dashed #b58900;
+  border-radius: 4px;
+  padding: 4px 12px;
+  letter-spacing: .06em;
+}
+
 .counter {
   position: relative;
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
   gap: 16px;
-  min-height: 200px;
-  padding: 0 10px;
-  border-bottom: 18px solid var(--wood);
-  box-shadow: 0 10px 0 var(--wood-dark);
+  min-height: 220px;
+  padding: 16px 20px 0;
+  background: radial-gradient(ellipse at 50% 120%, rgba(255, 220, 120, 0.22) 0%, rgba(28, 14, 6, 0.98) 80%), #180c05;
+  border-radius: 8px 8px 0 0;
+  border: 4px solid var(--black);
+  border-bottom: 24px solid var(--red);
+  box-shadow: 0 10px 0 var(--wood-dark), inset 0 2px 16px rgba(255, 235, 180, 0.12);
 }
-.staff { display: flex; align-items: flex-start; gap: 10px; padding-bottom: 14px; }
+.staff { display: flex; align-items: flex-end; gap: 14px; padding-bottom: 8px; }
 .staff-face {
-  font-size: 84px;
-  line-height: 1;
-  filter: drop-shadow(0 4px 0 rgba(0,0,0,.4));
+  width: 116px;
+  height: 116px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 6px 0 rgba(0,0,0,.6));
+  transition: transform .2s cubic-bezier(.2,1.6,.4,1);
 }
+.master-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.master-svg.mood-normal {
+  animation: masterBreathe 2.4s ease-in-out infinite alternate;
+}
+@keyframes masterBreathe {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-4px); }
+}
+.master-svg.mood-success {
+  animation: masterNod 0.5s cubic-bezier(.2,1.6,.4,1);
+}
+@keyframes masterNod {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-10px) scale(1.06); }
+  100% { transform: translateY(0); }
+}
+.master-svg.mood-stern {
+  animation: masterAngry 0.4s ease;
+}
+@keyframes masterAngry {
+  0%, 100% { transform: none; }
+  25% { transform: translateX(-4px) rotate(-2deg); }
+  75% { transform: translateX(4px) rotate(2deg); }
+}
+
 .bubble {
   position: relative;
   background: #fff;
@@ -199,21 +266,33 @@ kbd {
   font-weight: 900;
   font-size: clamp(16px, 2.6vw, 22px);
   max-width: 320px;
+  margin-bottom: 22px;
 }
 .bubble::before {
   content: '';
   position: absolute;
-  left: -14px; top: 20px;
+  left: -14px; bottom: 20px;
   border: 8px solid transparent;
   border-right: 10px solid var(--black);
 }
 .bubble.pop { animation: pop .25s ease; }
 @keyframes pop { 0% { transform: scale(.7); } 70% { transform: scale(1.06); } 100% { transform: scale(1); } }
 
-.bowl-wrap { width: min(260px, 40vw); margin-bottom: -6px; }
-.bowl-wrap .bowl { width: 100%; display: block; filter: drop-shadow(0 6px 0 rgba(0,0,0,.35)); }
+.bowl-wrap { width: min(280px, 42vw); margin-bottom: -10px; }
+.bowl-wrap .bowl { width: 100%; display: block; filter: drop-shadow(0 8px 12px rgba(0,0,0,.55)); }
 .bowl-wrap.serve { animation: serve .45s cubic-bezier(.2,1.6,.4,1); }
 @keyframes serve { 0% { transform: translateY(-30px) scale(.85); } 100% { transform: none; } }
+
+/* 湯気のアニメーション */
+@keyframes steamDrift {
+  0% { transform: translateY(0) scaleX(1); opacity: 0.55; }
+  50% { transform: translateY(-10px) scaleX(1.12); opacity: 0.8; }
+  100% { transform: translateY(-22px) scaleX(0.88); opacity: 0.2; }
+}
+.bowl-steam {
+  animation: steamDrift 2.8s ease-in-out infinite alternate;
+  transform-origin: center bottom;
+}
 
 .callcard {
   margin-top: 30px;
@@ -415,7 +494,9 @@ footer {
 @media (max-width: 640px) {
   .modes { grid-template-columns: 1fr; }
   .stats { grid-template-columns: repeat(2, 1fr); }
-  .staff-face { font-size: 56px; }
-  .counter { min-height: 150px; }
+  .staff-face { width: 78px; height: 78px; }
+  .counter { min-height: 160px; padding: 12px 12px 0; }
+  .staff { gap: 8px; }
+  .bubble { font-size: 15px; padding: 8px 12px; max-width: 200px; margin-bottom: 12px; }
   .mute { width: 36px; height: 36px; font-size: 18px; right: 8px; }
 }

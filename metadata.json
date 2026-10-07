@@ -1,0 +1,7 @@
+{
+  "name": "マシマシタイピング",
+  "description": "ラーメン二郎の「コール」だけに特化したタイピングゲーム。ニンニク入れますか？に即答せよ。",
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

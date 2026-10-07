@@ -254,6 +254,7 @@
   function toTitle() {
     clearTimers();
     state = 'title';
+    if ($('staffFace')) $('staffFace').innerHTML = Master.render('normal');
     renderBests();
     show('titleScreen');
   }
@@ -270,6 +271,7 @@
     $('callCard').classList.add('hidden');
     $('callCard').classList.toggle('super', !!cfg.super);
     $('bowlWrap').innerHTML = Bowl.render({ yasai: 0, ninniku: 0, abura: 0, karame: 1 });
+    if ($('staffFace')) $('staffFace').innerHTML = Master.render('wait');
     $('staffBubble').textContent = '食券を拝見します';
     state = 'countdown';
     const cd = $('countdown');
@@ -315,6 +317,7 @@
       $('callDisplay').textContent = call.display;
     }
     $('staffBubble').textContent = pick(QUESTIONS);
+    if ($('staffFace')) $('staffFace').innerHTML = Master.render('normal');
     $('staffBubble').classList.remove('pop');
     void $('staffBubble').offsetWidth;
     $('staffBubble').classList.add('pop');
@@ -390,6 +393,7 @@
     $('callCard').classList.add('ok');
     if (cfg.super) $('callDisplay').textContent = `正解！ ${call.display}`;
     $('staffBubble').textContent = pick(['はい', 'はーい', 'あいよ', 'はい、どうぞ']) + `（+${gained}）`;
+    if ($('staffFace')) $('staffFace').innerHTML = Master.render('success');
     const bw = $('bowlWrap');
     bw.innerHTML = Bowl.render(call.lv, idx + 1);
     bw.classList.remove('serve');
@@ -407,6 +411,7 @@
     sfx.fail();
     $('callCard').classList.add('ng');
     $('staffBubble').textContent = 'ロットが乱れました…';
+    if ($('staffFace')) $('staffFace').innerHTML = Master.render('stern');
     if (cfg.super) {
       $('callDisplay').textContent = `正解：${calls[idx].display}`;
       $('callRomaji').innerHTML = `<span class="missed">${esc(typer.typed) || '&nbsp;'}</span>`;
@@ -465,7 +470,14 @@
     if (!lastResult) return;
     const text = `マシマシタイピング【${cfg.name}】で「${lastResult.rank}」認定！\nスコア ${lastResult.score} / 正確率 ${(lastResult.acc * 100).toFixed(1)}% / ${lastResult.kps.toFixed(2)}打鍵/秒\n#マシマシタイピング`;
     const url = location.href.split('#')[0].split('?')[0];
-    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank', 'noopener');
+    const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+    const a = document.createElement('a');
+    a.href = tweetUrl;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   }
 
   // ---------- 入力 ----------
@@ -536,4 +548,6 @@
   })();
 
   renderBests();
+  if ($('staffFace')) $('staffFace').innerHTML = Master.render('normal');
+  if ($('heroBowl')) $('heroBowl').innerHTML = Bowl.render({ yasai: 4, ninniku: 4, abura: 4, karame: 3 }, 88);
 })();
