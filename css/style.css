@@ -89,7 +89,7 @@ main {
 
 .modes {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 16px;
   margin: 26px 0 10px;
 }
@@ -248,6 +248,7 @@ kbd {
   letter-spacing: .05em;
 }
 .call-kana .done { color: #bbb; }
+.call-kana .done-strong { color: var(--red); }
 .call-romaji {
   font-family: 'JetBrains Mono', monospace;
   font-size: clamp(18px, 3vw, 28px);
@@ -370,6 +371,44 @@ footer {
   font-size: 12px;
   padding: 16px;
   line-height: 1.7;
+}
+
+.mode.super .ticket { background: var(--black); color: var(--yellow); }
+
+/* ---------- 超ハード ---------- */
+.call-image { display: none; }
+.callcard.super .call-image {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 18px;
+  margin: 6px 0 4px;
+}
+.call-image .target { width: min(340px, 62vw); }
+.call-image .ref {
+  width: min(110px, 22vw);
+  font-size: 11px;
+  font-weight: 900;
+  color: #777;
+  opacity: .85;
+}
+.call-image svg { width: 100%; display: block; }
+.callcard.super .call-display { font-size: clamp(20px, 3.4vw, 30px); }
+.callcard.super .call-display:empty { display: none; }
+
+.samples {
+  display: grid;
+  grid-template-columns: max-content repeat(4, 1fr);
+  gap: 6px 10px;
+  align-items: center;
+  margin-top: 12px;
+}
+.samples .row-h { font-weight: 900; }
+.samples figure { margin: 0; text-align: center; font-size: 12px; font-weight: 700; }
+.samples svg { width: 100%; max-width: 130px; display: block; margin: 0 auto; }
+
+@media (max-width: 860px) {
+  .modes { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 640px) {

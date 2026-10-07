@@ -47,8 +47,13 @@
           <span class="mode-desc">ジロリアン向け・12ロット<br>順不同・制限時間激短</span>
           <span class="best" data-best="hard"></span>
         </button>
+        <button class="mode super" data-mode="super">
+          <span class="ticket">超ハード</span>
+          <span class="mode-desc">完成丼の画像だけが頼り・8ロット<br>見て、読んで、コールせよ</span>
+          <span class="best" data-best="super"></span>
+        </button>
       </div>
-      <p class="hint">食券を選んで開始（キーボード <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> でも選択可）／ IMEはオフにしてください</p>
+      <p class="hint">食券を選んで開始（キーボード <kbd>1</kbd>〜<kbd>4</kbd> でも選択可）／ IMEはオフにしてください</p>
 
       <details class="panel glossary">
         <summary>コール用語集</summary>
@@ -64,6 +69,12 @@
           <dt>そのままで</dt><dd>トッピングなし（ニンニク無し・ヤサイ普通）</dd>
         </dl>
         <p class="note">ローマ字は「shi / si」「tsu / tu」「nn / n」「っ＝子音重ね / ltu」など一般的な表記に対応しています。</p>
+      </details>
+
+      <details class="panel glossary">
+        <summary>超ハード用 盛り見本</summary>
+        <p class="note">超ハードでは丼の画像だけが表示されます。トッピングの順番は自由。ヤサイ普通は言っても言わなくてもOK。全部マシなら「全マシ」も正解です。</p>
+        <div class="samples" id="samples"></div>
       </details>
     </section>
 
@@ -85,7 +96,11 @@
       </div>
 
       <div class="callcard" id="callCard">
-        <div class="call-label">あなたのコール</div>
+        <div class="call-label" id="callLabel">あなたのコール</div>
+        <div class="call-image" id="callImage">
+          <div class="target" id="callTarget"></div>
+          <div class="ref"><div id="callRef"></div><span>基準：そのまま</span></div>
+        </div>
         <div class="call-display" id="callDisplay"></div>
         <div class="call-kana" id="callKana"></div>
         <div class="call-romaji" id="callRomaji"></div>

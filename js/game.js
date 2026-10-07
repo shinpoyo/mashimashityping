@@ -32,6 +32,9 @@
         { display: '全マシマシ', kana: 'ゼンマシマシ', lv: ALL(4) },
       ], specialRate: 0.1,
     },
+    super: {
+      name: '超ハード', lots: 8, base: 5.0, perKey: 0.3, super: true,
+    },
   };
 
   const QUESTIONS = ['ニンニク入れますか？', 'ニンニク入れますかぁ？', 'ニンニクは？', 'トッピングは？', 'ニンニク、入れますか？'];
@@ -76,11 +79,81 @@
   function makeCalls(cfg) {
     const list = [];
     while (list.length < cfg.lots) {
-      const c = makeCall(cfg);
+      const c = cfg.super ? makeSuperCall() : makeCall(cfg);
       if (list.length && list[list.length - 1].kana === c.kana) continue;
       list.push(c);
     }
     return list;
+  }
+
+  // ---------- 超ハード：画像からコールを当てる ----------
+  // 画像で区別できる段階だけを出題（カラメ/ニンニク/アブラのスクナメは基準と区別しにくいので除外）
+  const SUPER_WEIGHTS = {
+    yasai: { 1: 1, 2: 3, 3: 2, 4: 2 },
+    ninniku: { 0: 2, 2: 2, 3: 2, 4: 1 },
+    abura: { 0: 2, 2: 2, 3: 2, 4: 1 },
+    karame: { 1: 2, 2: 2, 3: 2, 4: 1 },
+  };
+  const LV_MOD = { 1: 'スクナメ', 2: '', 3: 'マシ', 4: 'マシマシ' };
+
+  function permutations(arr) {
+    if (arr.length <= 1) return [arr.slice()];
+    const out = [];
+    arr.forEach((x, i) => {
+      const rest = arr.slice(0, i).concat(arr.slice(i + 1));
+      permutations(rest).forEach(p => out.push([x, ...p]));
+    });
+    return out;
+  }
+
+  function answersFor(lv) {
+    const required = [];
+    let optional = null;
+    for (const t of TOPPINGS) {
+      const v = lv[t.key];
+      if (v === DEFAULT_LV[t.key]) {
+        if (t.key === 'yasai') optional = 'ヤサイ';
+        continue;
+      }
+      required.push(t.word + LV_MOD[v]);
+    }
+    const set = new Set();
+    const sets = [required];
+    if (optional) sets.push(required.concat(optional));
+    sets.forEach(s => { if (s.length) permutations(s).forEach(p => set.add(p.join(''))); });
+    if (!required.length) set.add('ソノママデ');
+    const vals = TOPPINGS.map(t => lv[t.key]);
+    if (vals.every(v => v === 3)) set.add('ゼンマシ');
+    if (vals.every(v => v === 4)) set.add('ゼンマシマシ');
+    const canonical = required.length ? required.join(' ') : 'そのままで';
+    return { answers: [...set], canonical };
+  }
+
+  function makeSuperCall() {
+    const lv = {};
+    for (const t of TOPPINGS) lv[t.key] = Number(weighted(SUPER_WEIGHTS[t.key]));
+    const { answers, canonical } = answersFor(lv);
+    return { display: canonical, kana: answers[0], answers, lv };
+  }
+
+  // 複数の正解候補を同時に追いかける入力判定
+  class MultiTyper {
+    constructor(answers) {
+      this.live = answers.map(a => new Romaji.Typer(a));
+      this.typed = '';
+    }
+    get done() { return this.live.some(t => t.done); }
+    get head() { return this.live.find(t => t.done) || this.live[0]; }
+    get src() { return this.head.src; }
+    get kanaDone() { return this.head.kanaDone; }
+    input(k) {
+      const ok = this.live.filter(t => t.input(k));
+      if (!ok.length) return false;
+      this.live = ok;
+      this.typed += k;
+      return true;
+    }
+    rest() { return this.head.rest(); }
   }
 
   // ---------- サウンド ----------
@@ -156,6 +229,7 @@
     updateHud();
     show('gameScreen');
     $('callCard').classList.add('hidden');
+    $('callCard').classList.toggle('super', !!cfg.super);
     $('bowlWrap').innerHTML = Bowl.render({ yasai: 0, ninniku: 0, abura: 0, karame: 1 });
     $('staffBubble').textContent = '食券を拝見します';
     state = 'countdown';
@@ -187,15 +261,26 @@
   function nextLot() {
     if (idx >= calls.length) return finish();
     const call = calls[idx];
-    typer = new Romaji.Typer(call.kana);
-    limit = cfg.base + cfg.perKey * typer.rest().length;
+    const card = $('callCard');
+    if (cfg.super) {
+      typer = new MultiTyper(call.answers);
+      limit = cfg.base + cfg.perKey * new Romaji.Typer(call.kana).rest().length;
+      $('callLabel').textContent = 'この丼になるコールを答えよ';
+      $('callTarget').innerHTML = Bowl.render(call.lv, idx + 1);
+      $('callRef').innerHTML = Bowl.render(DEFAULT_LV, 999);
+      $('callDisplay').textContent = '';
+    } else {
+      typer = new Romaji.Typer(call.kana);
+      limit = cfg.base + cfg.perKey * typer.rest().length;
+      $('callLabel').textContent = 'あなたのコール';
+      $('callDisplay').textContent = call.display;
+    }
     $('staffBubble').textContent = pick(QUESTIONS);
     $('staffBubble').classList.remove('pop');
     void $('staffBubble').offsetWidth;
     $('staffBubble').classList.add('pop');
     $('bowlWrap').innerHTML = Bowl.render({ yasai: 0, ninniku: 0, abura: 0, karame: 1 }, idx + 1);
-    $('callDisplay').textContent = call.display;
-    $('callCard').classList.remove('hidden', 'ok', 'ng');
+    card.classList.remove('hidden', 'ok', 'ng');
     renderCall();
     updateHud();
     lotStart = performance.now();
@@ -218,6 +303,12 @@
   function renderCall() {
     const k = typer.src;
     const d = typer.kanaDone;
+    if (cfg.super) {
+      // 答えが漏れないよう、確定したかなと打鍵だけを表示
+      $('callKana').innerHTML = `<span class="done-strong">${esc(k.slice(0, d))}</span>&nbsp;`;
+      $('callRomaji').innerHTML = `<span class="done">${esc(typer.typed)}</span><span class="cur">&nbsp;</span>`;
+      return;
+    }
     $('callKana').innerHTML = `<span class="done">${esc(k.slice(0, d))}</span>${esc(k.slice(d))}`;
     $('callRomaji').innerHTML = `<span class="done">${esc(typer.typed)}</span><span class="cur">${esc(typer.rest().slice(0, 1))}</span>${esc(typer.rest().slice(1))}`;
   }
@@ -251,11 +342,14 @@
     state = 'serve';
     stats.fastest = Math.min(stats.fastest, ms);
     const remain = Math.max(0, limit - ms / 1000);
-    const gained = typer.typed.length * 10 + Math.round(remain * 30);
+    const gained = cfg.super
+      ? typer.typed.length * 15 + Math.round(remain * 40)
+      : typer.typed.length * 10 + Math.round(remain * 30);
     stats.score += gained;
     sfx.ok();
     const call = calls[idx];
     $('callCard').classList.add('ok');
+    if (cfg.super) $('callDisplay').textContent = `正解！ ${call.display}`;
     $('staffBubble').textContent = pick(['はい', 'はーい', 'あいよ', 'はい、どうぞ']) + `（+${gained}）`;
     const bw = $('bowlWrap');
     bw.innerHTML = Bowl.render(call.lv, idx + 1);
@@ -264,7 +358,7 @@
     bw.classList.add('serve');
     idx++;
     updateHud();
-    later(nextLot, 900);
+    later(nextLot, cfg.super ? 1300 : 900);
   }
 
   function timeout() {
@@ -274,10 +368,15 @@
     sfx.fail();
     $('callCard').classList.add('ng');
     $('staffBubble').textContent = 'ロットが乱れました…';
-    $('callRomaji').innerHTML = `<span class="done">${esc(typer.typed)}</span><span class="missed">${esc(typer.rest())}</span>`;
+    if (cfg.super) {
+      $('callDisplay').textContent = `正解：${calls[idx].display}`;
+      $('callRomaji').innerHTML = `<span class="missed">${esc(typer.typed) || '&nbsp;'}</span>`;
+    } else {
+      $('callRomaji').innerHTML = `<span class="done">${esc(typer.typed)}</span><span class="missed">${esc(typer.rest())}</span>`;
+    }
     idx++;
     updateHud();
-    later(nextLot, 1300);
+    later(nextLot, cfg.super ? 2200 : 1300);
   }
 
   // ---------- 結果 ----------
@@ -298,7 +397,9 @@
     const total = stats.keys + stats.miss;
     const acc = total ? stats.keys / total : 0;
     const kps = stats.typingMs ? stats.keys / (stats.typingMs / 1000) : 0;
-    let eff = kps * acc * acc - stats.breaks * 0.4;
+    let eff = cfg.super
+      ? kps * acc * acc * 1.6 - stats.breaks * 0.6
+      : kps * acc * acc - stats.breaks * 0.4;
     if (stats.breaks >= cfg.lots / 2) eff = 0;
     let rank = RANKS[0];
     for (const r of RANKS) if (eff >= r[0]) rank = r;
@@ -343,7 +444,7 @@
       return;
     }
     if (state === 'title') {
-      const m = { '1': 'easy', '2': 'normal', '3': 'hard' }[e.key];
+      const m = { '1': 'easy', '2': 'normal', '3': 'hard', '4': 'super' }[e.key];
       if (m) start(m);
       return;
     }
@@ -364,6 +465,24 @@
   $('retryBtn').addEventListener('click', e => { e.currentTarget.blur(); start(mode); });
   $('backBtn').addEventListener('click', toTitle);
   $('shareBtn').addEventListener('click', share);
+
+  // 盛り見本（超ハード攻略用）
+  (function renderSamples() {
+    const rows = [
+      ['ヤサイ', 'yasai', [[1, 'スクナメ'], [2, '普通'], [3, 'マシ'], [4, 'マシマシ']]],
+      ['ニンニク', 'ninniku', [[0, 'なし'], [2, 'ニンニク'], [3, 'マシ'], [4, 'マシマシ']]],
+      ['アブラ', 'abura', [[0, 'なし'], [2, 'アブラ'], [3, 'マシ'], [4, 'マシマシ']]],
+      ['カラメ', 'karame', [[1, 'なし'], [2, 'カラメ'], [3, 'マシ'], [4, 'マシマシ']]],
+    ];
+    let html = '';
+    rows.forEach(([label, key, cols]) => {
+      html += `<div class="row-h">${label}</div>`;
+      cols.forEach(([v, cap]) => {
+        html += `<figure>${Bowl.render({ ...DEFAULT_LV, [key]: v }, 999)}<figcaption>${cap}</figcaption></figure>`;
+      });
+    });
+    $('samples').innerHTML = html;
+  })();
 
   renderBests();
 })();

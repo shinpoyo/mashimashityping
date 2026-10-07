@@ -8,7 +8,7 @@ const Bowl = (() => {
     return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296);
   }
 
-  const SOUP = ['#c98a4b', '#b4733a', '#9a5a2a', '#7a421d', '#5a2e12'];
+  const SOUP = ['#dba567', '#c4843f', '#8f5426', '#683316', '#401d0a'];
 
   function render(lv, seed = 1) {
     const r = rng(seed);
@@ -66,9 +66,14 @@ const Bowl = (() => {
       const y = (H > 0 ? peak + 6 : top - 2) + r() * Math.max(H * 0.35, 6);
       g += `<ellipse cx="${x}" cy="${y}" rx="${5 + r() * 5}" ry="${3 + r() * 2}" fill="#fff4d6" stroke="#d9b983" stroke-width="1" opacity=".95"/>`;
     }
-    // カラメ（アブラにタレがかかる）
-    if (lv.karame >= 3 && ab > 0) {
-      g += `<path d="M${cx - 14} ${(H > 0 ? peak : top) + 6} q14 10 28 0" stroke="#5a2e12" stroke-width="3" fill="none" opacity=".7"/>`;
+    // カラメ（ヤサイ・アブラにタレの筋がかかる。本数で量を表現）
+    const streaks = [0, 0, 1, 2, 4][lv.karame];
+    for (let i = 0; i < streaks; i++) {
+      const sx = cx - 20 + (streaks === 1 ? 20 : (40 / (streaks - 1)) * i);
+      const sy = (H > 0 ? peak : top - 6) + 4;
+      const len = Math.max(H * 0.6, 10);
+      const dir = sx < cx ? -1 : 1;
+      g += `<path d="M${sx} ${sy} q${dir * 6} ${len * 0.5} ${dir * 3} ${len}" stroke="#4a230c" stroke-width="4" stroke-linecap="round" fill="none" opacity=".85"/>`;
     }
 
     // ニンニク
