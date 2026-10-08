@@ -176,10 +176,24 @@ kbd {
 /* ---------- ヒーロー・プレビュー ---------- */
 .hero-preview {
   margin: 18px auto 6px;
-  max-width: 260px;
+  max-width: 320px;
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+.hero-counter-scene {
+  position: relative;
+  width: 100%;
+  padding: 12px 14px 0;
+  background:
+    /* 写真の奥のステンレス枠 */
+    linear-gradient(to bottom, #2b110a 0px, #3b140b 24px, #94a3b8 24px, #e2e8f0 26px, transparent 26px),
+    /* 手前の二郎赤カウンター */
+    radial-gradient(ellipse at 50% 95%, rgba(255, 140, 140, 0.35) 0%, rgba(195, 30, 30, 0.96) 65%, #7a1212 100%);
+  border-radius: 8px 8px 4px 4px;
+  border: 3px solid var(--black);
+  border-bottom: 12px solid #b91c1c;
+  box-shadow: 0 8px 0 rgba(0,0,0,0.4), inset 0 2px 12px rgba(255, 220, 220, 0.3);
 }
 .hero-bowl {
   width: 100%;
@@ -187,7 +201,7 @@ kbd {
 .hero-bowl .bowl {
   width: 100%;
   display: block;
-  filter: drop-shadow(0 10px 16px rgba(0,0,0,0.5));
+  filter: drop-shadow(0 12px 18px rgba(0,0,0,0.55));
   animation: heroFloat 3.2s ease-in-out infinite alternate;
 }
 @keyframes heroFloat {
@@ -195,15 +209,106 @@ kbd {
   100% { transform: translateY(-7px); }
 }
 .hero-caption {
-  margin-top: 8px;
+  margin-top: 10px;
   font-size: 13px;
   font-weight: 900;
   color: var(--wood-dark);
   background: rgba(255, 225, 0, 0.28);
   border: 2px dashed #b58900;
   border-radius: 4px;
-  padding: 4px 12px;
+  padding: 5px 14px;
   letter-spacing: .06em;
+}
+
+/* カウンターの卓上備品（写真通りの水色コップ、割り箸、GABAN缶、一味唐辛子） */
+.counter-props, .hero-props {
+  position: absolute;
+  right: 14px;
+  top: 10px;
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  pointer-events: none;
+  z-index: 2;
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.45));
+}
+.prop-glass {
+  width: 20px;
+  height: 36px;
+  background: linear-gradient(135deg, rgba(96, 165, 250, 0.8) 0%, rgba(37, 99, 235, 0.9) 100%);
+  border: 1.5px solid rgba(191, 219, 254, 0.85);
+  border-radius: 2px 2px 5px 5px;
+  box-shadow: inset 0 4px 6px rgba(255,255,255,0.45);
+  position: relative;
+}
+.prop-glass::after {
+  content: '';
+  position: absolute;
+  inset: 10px 2px 2px;
+  background: rgba(147, 197, 253, 0.65);
+  border-radius: 0 0 3px 3px;
+}
+.prop-chopsticks {
+  width: 22px;
+  height: 52px;
+  position: relative;
+  background: linear-gradient(90deg, #94a3b8, #f1f5f9 50%, #64748b);
+  border: 1.5px solid #334155;
+  border-radius: 2px;
+}
+.prop-chopsticks::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  left: 2px;
+  right: 2px;
+  height: 20px;
+  background: repeating-linear-gradient(90deg, #fef3c7 0 2.5px, #d97706 2.5px 3.5px);
+  border-radius: 1px;
+}
+.prop-gaban {
+  width: 18px;
+  height: 38px;
+  background: linear-gradient(180deg, #1e3a8a 0 14px, #cbd5e1 14px 100%);
+  border: 1.5px solid #0f172a;
+  border-radius: 2px;
+  position: relative;
+}
+.prop-gaban::before {
+  content: 'G';
+  position: absolute;
+  top: 1px;
+  left: 0;
+  right: 0;
+  color: #fff;
+  font-family: sans-serif;
+  font-size: 8px;
+  font-weight: 900;
+  text-align: center;
+}
+.prop-ichimi {
+  width: 15px;
+  height: 34px;
+  background: #f8fafc;
+  border: 1.5px solid #475569;
+  border-radius: 2px;
+  position: relative;
+}
+.prop-ichimi::before {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: 1px;
+  right: 1px;
+  height: 5px;
+  background: #dc2626;
+  border-radius: 2px 2px 0 0;
+}
+.prop-ichimi::after {
+  content: '';
+  position: absolute;
+  inset: 12px 2px 2px;
+  background: #b91c1c;
 }
 
 .counter {
@@ -212,13 +317,17 @@ kbd {
   align-items: flex-end;
   justify-content: space-between;
   gap: 16px;
-  min-height: 220px;
+  min-height: 230px;
   padding: 16px 20px 0;
-  background: radial-gradient(ellipse at 50% 120%, rgba(255, 220, 120, 0.22) 0%, rgba(28, 14, 6, 0.98) 80%), #180c05;
+  background:
+    /* 写真の奥に見える一段高い配膳台とステンレスの銀枠 */
+    linear-gradient(to bottom, #240c06 0px, #3b140b 38px, #94a3b8 38px, #e2e8f0 41px, transparent 41px),
+    /* 手前の二郎名物・鮮烈な赤カウンターの光沢 */
+    radial-gradient(ellipse at 50% 95%, rgba(255, 140, 140, 0.32) 0%, rgba(195, 30, 30, 0.96) 65%, #7a1212 100%);
   border-radius: 8px 8px 0 0;
   border: 4px solid var(--black);
-  border-bottom: 24px solid var(--red);
-  box-shadow: 0 10px 0 var(--wood-dark), inset 0 2px 16px rgba(255, 235, 180, 0.12);
+  border-bottom: 26px solid #b91c1c;
+  box-shadow: 0 10px 0 #450a0a, inset 0 2px 18px rgba(255, 220, 220, 0.25);
 }
 .staff { display: flex; align-items: flex-end; gap: 14px; padding-bottom: 8px; }
 .staff-face {
@@ -496,6 +605,8 @@ footer {
   .stats { grid-template-columns: repeat(2, 1fr); }
   .staff-face { width: 78px; height: 78px; }
   .counter { min-height: 160px; padding: 12px 12px 0; }
+  .counter-props { opacity: 0.7; transform: scale(0.8); transform-origin: right top; right: 6px; }
+  .hero-props { opacity: 0.7; transform: scale(0.8); transform-origin: right top; right: 6px; }
   .staff { gap: 8px; }
   .bubble { font-size: 15px; padding: 8px 12px; max-width: 200px; margin-bottom: 12px; }
   .mute { width: 36px; height: 36px; font-size: 18px; right: 8px; }
